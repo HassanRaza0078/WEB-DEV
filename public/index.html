@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Animated Portfolio</title>
+<style>
+/* --- same CSS as before --- */
+body{background:#82aaeb;color:white;font-family:'Poppins',sans-serif;line-height:1.5;margin:0}
+nav{display:flex;justify-content:space-between;align-items:center;padding:20px;max-width:1100px;margin:auto}
+.brand{font-weight:800;font-size:1.3rem;}
+.brand span{color:#7c3aed;}
+nav ul{list-style:none;display:flex;gap:20px;}
+nav a{text-decoration:none;color:#94a3b8;transition:.3s;}
+nav a:hover{color:white;}
+.hero{text-align:center;padding:80px 20px;}
+.hero h1 span{color:#7c3aed;}
+.btn{background:linear-gradient(90deg,#7c3aed,#5b21b6);padding:10px 20px;border:none;border-radius:12px;color:white;cursor:pointer;font-weight:600;margin-top:10px}
+section{max-width:1000px;margin:auto;padding:40px 20px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:20px}
+.card{background:#0b1220;padding:20px;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.4)}
+.card h3{color:#7c3aed;}
+input,textarea{width:100%;padding:3px;margin: 3px;border-radius:8px;border:2px;background:rgba(1, 28, 59, 0.1);color:rgb(0, 0, 0)}
+footer{text-align:center;padding:10px;margin: 3px;color:#94a3b8;font-size:0.9rem;background-color: #011430;border: #011430 2px;}
+</style>
+</head>
+<body>
+<nav>
+  <div class="brand">My<span>Portfolio</span></div>
+  <ul>
+    <li><a href="#home">Home</a></li>
+    <li><a href="#projects">Projects</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+</nav>
+
+<section id="home" class="hero">
+  <h1>Assalamualaikum, I'm <span id="typed"></span></h1>
+  <p>Frontend Developer • Designer • Creator</p>
+  <button class="btn" onclick="document.querySelector('#contact').scrollIntoView({behavior:'smooth'})">Contact Me</button>
+</section>
+
+<section id="projects">
+  <h2>My Projects</h2>
+  <div class="grid">
+    <div class="card"><h3>Portfolio Website</h3><p>A simple responsive personal website.</p></div>
+    <div class="card"><h3>Todo App</h3><p>Organize daily tasks easily.</p></div>
+  </div>
+</section>
+
+<section id="contact">
+  <h2>Contact Me</h2>
+  <form id="contactForm">
+    <input type="text" id="name" placeholder="Your Name" required>
+    <input type="email" id="email" placeholder="Your Email" required>
+    <textarea id="message" rows="5" placeholder="Your Message" required></textarea>
+    <button class="btn" type="submit">Send Message</button>
+    <p id="statusMsg" style="color:#011430;font-size:0.9rem;"></p>
+  </form>
+</section>
+
+<footer>
+  © <span id="year"></span> My Portfolio. Built with ❤️
+</footer>
+
+<script>
+document.getElementById("year").textContent = new Date().getFullYear();
+
+const words=["Hassan Raza","a Web Developer","a Designer"];
+let i=0,j=0,forward=true;
+function typing(){
+  const span=document.getElementById('typed');
+  span.textContent=words[i].slice(0,j);
+  if(forward){j++;if(j>words[i].length){forward=false;setTimeout(typing,800);return;}}
+  else{j--;if(j<0){forward=true;i=(i+1)%words.length;j=0;}}
+  setTimeout(typing,forward?120:60);
+}
+typing();
+
+// Contact form -> POST /api/contact
+document.getElementById("contactForm").addEventListener("submit", async (e)=>{
+  e.preventDefault();
+  const msg=document.getElementById("statusMsg");
+  msg.textContent="Sending...";
+  const data={
+    name:document.getElementById("name").value,
+    email:document.getElementById("email").value,
+    message:document.getElementById("message").value
+  };
+  try{
+    const res=await fetch("/api/contact",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify(data)
+    });
+    const json=await res.json();
+    if(json.success){msg.textContent="✅ Message saved successfully!";}
+    else msg.textContent="❌ Failed: "+(json.error||"Unknown");
+  }catch(err){
+    msg.textContent="Network error";
+  }
+  e.target.reset();
+});
+</script>
+</body>
+</html>
